@@ -1,0 +1,76 @@
+\documentclass{article}
+\usepackage{natbib}
+
+\begin{document}
+
+
+
+\title{The Adcentures of Sherlock Holmes}
+\author{Akhilesh Atluri}
+\maketitle
+
+\begin{abstract}
+
+In this Article we are building wordcloud of the words from sherlock Holmes using sherlock Holmes clip art
+
+\end{abstract}
+
+\textit{The Adventures of Sherlock Holmes}is a novel by SIR ARTHUR CONAN DOYLE
+
+\section{Getting the data and getting required packages}
+
+<<warning=FALSE,message=FALSE>>=
+library(dplyr)
+library(tidytext)
+library(stringr)
+library(wordcloud)
+library(tm)
+library(gutenbergr)
+library(knitr)
+library(wordcloud2)
+
+#After installing and bringing in all the packages let's bring in text for 'The Adventures of Sherlock Holmes'
+
+gutenberg_works(str_detect(title,'The Adventure'))
+
+sherlock<-gutenberg_download(1661)
+@
+
+\section{Getting the words}
+Now using dplyr lets get words without blank lines
+
+<<warning=FALSE,message=FALSE>>=
+sherlock_words<-sherlock%>%
+  unnest_tokens(word,text)
+
+@
+
+\noindent Let's get rid of all the unwanted words such as 'the' ,'and' etc..
+
+<<warning=FALSE,message=FALSE>>=
+sherlock_words<-sherlock_words%>%
+  filter(!(word %in% stop_words$word))
+@
+
+\noindent Now let's group each word and get the count of each word
+<<warning=FALSE,message=FALSE>>=
+sherlock_freq<-sherlock_words%>%
+  group_by(word)%>%
+  summarize(count=n())
+
+@
+
+
+\section{wordcloud2}
+
+<<>>=
+wordcloud(sherlock_freq$word,sherlock_freq$count,min.freq = 25)
+@
+
+
+
+\bibliographystyle{apa}
+\bibliography{article}
+\nocite{*}
+
+\end{document}
